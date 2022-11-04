@@ -42,4 +42,10 @@ app.post('/login', loginValition, async (req, res) => {
     return res.status(OK).json({ token });
 });
 
+app.post('/talker', async (req, res) => {
+    
+    const token = req.headers.authorization;
+    console.log(token);
+});
+
 module.exports = app;
