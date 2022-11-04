@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { readTalker } = require('./utils/fsUtils');
 const { generateToken } = require('./utils/functionUtils');
+const { loginValition } = require('./middlewares/validationFunction');
 
 const app = express();
 app.use(bodyParser.json());
@@ -31,7 +32,7 @@ app.get('/talker/:id', async (req, res) => {
     return res.status(HTTP_OK_STATUS).json(response);
 });
 
-app.post('/login', async (req, res) => {
+app.post('/login', loginValition, async (req, res) => {
     const { email, password } = req.body;
 
     if ([email, password].includes(undefined)) {
