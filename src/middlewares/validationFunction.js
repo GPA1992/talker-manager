@@ -3,7 +3,7 @@ const NOT_FOUND = 404; */
 const UNAUTHORIZED = 401;
 const BAD_REQUEST = 400;
 /* const CREATED = 201; */
-const OK = 200;
+/* const OK = 200; */
  
  function loginValition(req, res, next) {
     const { email, password } = req.body;
