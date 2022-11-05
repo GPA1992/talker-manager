@@ -19,6 +19,7 @@ const NOT_FOUND = 404;
 const UNAUTHORIZED = 401;
 const CREATED = 201;
 const OK = 200;
+const NO_CONTENT = 204;
 
 app.get('/talker', async (req, res) => {
     const talkerSeed = await readTalker();
@@ -83,6 +84,16 @@ talkRateValidation, async (req, res) => {
     };
     await writeNewTalker(talkerSeed);
     return res.status(OK).json(editTalker);
+});
+
+app.delete('/talker/:id',
+tokenValidation, async (req, res) => {
+    const talkerSeed = await readTalker();
+    const { id } = req.params;
+    const talkerIndex = talkerSeed.findIndex((talker) => Number(talker.id) === Number(id));
+    talkerSeed.splice(talkerIndex, 1);
+    await writeNewTalker(talkerSeed);
+    return res.status(NO_CONTENT).end();
 });
 
 module.exports = app;
