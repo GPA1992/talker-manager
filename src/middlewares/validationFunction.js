@@ -26,7 +26,7 @@ const BAD_REQUEST = 400;
     next();
   }
 
- function nameValidation(req, res) {
+ function nameValidation(req, res, next) {
     const { name } = req.body;
     if (!name) {
        return res.status(BAD_REQUEST).json({ message: 'O campo "name" é obrigatório' });
@@ -36,9 +36,10 @@ const BAD_REQUEST = 400;
             message: 'O "name" deve ter pelo menos 3 caracteres',
         });
     }
+    return next();
  }
 
- function ageValidation(req, res) {
+ function ageValidation(req, res, next) {
     const { age } = req.body;
     if (!age) {
        return res.status(BAD_REQUEST).json({ message: 'O campo "age" é obrigatório' });
@@ -48,23 +49,53 @@ const BAD_REQUEST = 400;
             message: 'A pessoa palestrante deve ser maior de idade',
         });
     }
+    return next();
  }
 
- function talkValidation(req, res) {
+ function talkValidation(req, res, next) {
     const { talk } = req.body;
 
     if (!talk) {
        return res.status(BAD_REQUEST).json({ message: 'O campo "talk" é obrigatório' });
     }
-    if ('watchedAt' in talk === false) {
-        return res.status(BAD_REQUEST).json({ message: 'O campo "watchedAt" é obrigatório' });
-    }
-    if ('watchedAt' in talk === false) {
-        return res.status(BAD_REQUEST).json({ message: 'O campo "watchedAt" é obrigatório' });
-    }
+    return next();
  }
 
- function addNewPersonValidation(req, res, next) {
+ function talkWatchedAtValidation(req, res, next) {
+    const { talk } = req.body;
+    const { watchedAt } = talk;
+    const dataValidation = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+    if ('watchedAt' in talk === false) {
+        return res.status(BAD_REQUEST).json({ message: 'O campo "watchedAt" é obrigatório' });
+    }
+    if (!dataValidation.test(watchedAt)) {
+        return res.status(BAD_REQUEST).json({
+            message: 'O campo "watchedAt" deve ter o formato "dd/mm/aaaa"' });
+    }
+    return next();
+ }
+
+ function rateValueVerification(value) {
+    const intVerify = Number.isInteger(value);
+    const ifBigerThanFive = value > 1 && value <= 5; 
+    return intVerify && ifBigerThanFive;
+  }
+
+ function talkRateValidation(req, res, next) {
+    const { talk } = req.body;
+    const { rate } = talk;
+    if ('rate' in talk === false) {
+        return res.status(BAD_REQUEST).json({ message: 'O campo "rate" é obrigatório' });
+    }
+    if (!rateValueVerification(rate)) {
+        return res.status(BAD_REQUEST).json({
+            message: 'O campo "rate" deve ser um inteiro de 1 à 5',
+        });
+    }
+    return next();
+ }
+
+ function tokenValidation(req, res, next) {
     const { authorization } = req.headers;
     if (!authorization) {
         return res.status(UNAUTHORIZED).json({ message: 'Token não encontrado' });        
@@ -72,13 +103,15 @@ const BAD_REQUEST = 400;
     if (authorization.length < 16) {
         return res.status(UNAUTHORIZED).json({ message: 'Token inválido' });        
     }
-    nameValidation();
-    ageValidation();
-    talkValidation();
-    next();
+    return next();
  }
 
   module.exports = {
     loginValition,
-    addNewPersonValidation,
+    tokenValidation,
+    nameValidation,
+    ageValidation,
+    talkValidation,
+    talkWatchedAtValidation,
+    talkRateValidation,
   };
