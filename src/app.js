@@ -66,4 +66,23 @@ talkRateValidation, async (req, res) => {
     return res.status(CREATED).json(newTalker);
 });
 
+app.put('/talker/:id',
+tokenValidation,
+nameValidation,
+ageValidation,
+talkValidation,
+talkWatchedAtValidation,
+talkRateValidation, async (req, res) => {
+    const talkerSeed = await readTalker();
+    const { id } = req.params;
+    const editTalker = { id: Number(id), ...req.body };
+    const talkerIndex = talkerSeed.findIndex((talker) => Number(talker.id) === Number(id));
+    talkerSeed[talkerIndex] = {
+        id: Number(id),
+        ...req.body,
+    };
+    await writeNewTalker(talkerSeed);
+    return res.status(OK).json(editTalker);
+});
+
 module.exports = app;
