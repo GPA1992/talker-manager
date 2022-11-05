@@ -14,12 +14,26 @@ const { loginValition,
 const app = express();
 app.use(bodyParser.json());
 
-const HTTP_OK_STATUS = 200;
 const NOT_FOUND = 404;
 const UNAUTHORIZED = 401;
 const CREATED = 201;
-const OK = 200;
+const HTTP_OK_STATUS = 200;
 const NO_CONTENT = 204;
+
+app.get('/talker/search', tokenValidation, async (req, res) => {
+    const talkerSeed = await readTalker();
+    const { q } = req.query;
+    console.log(q);
+    if (!q) {
+        return res.status(HTTP_OK_STATUS).json(talkerSeed);
+    }
+    const findTalker = talkerSeed.find((talker) => talker.name.includes(q));
+    if (!findTalker) {
+        return res.status(HTTP_OK_STATUS).json([]);
+    }
+    const searchTalker = talkerSeed.filter((talker) => talker.name.includes(q));
+    return res.status(HTTP_OK_STATUS).json(searchTalker);
+});
 
 app.get('/talker', async (req, res) => {
     const talkerSeed = await readTalker();
@@ -47,7 +61,7 @@ app.post('/login', loginValition, (req, res) => {
         return res.status(UNAUTHORIZED).json({ message: 'Campos ausentes!' });
     }
     const token = generateToken();
-    return res.status(OK).json({ token });
+    return res.status(HTTP_OK_STATUS).json({ token });
 });
 
 app.post('/talker',
@@ -83,7 +97,7 @@ talkRateValidation, async (req, res) => {
         ...req.body,
     };
     await writeNewTalker(talkerSeed);
-    return res.status(OK).json(editTalker);
+    return res.status(HTTP_OK_STATUS).json(editTalker);
 });
 
 app.delete('/talker/:id',
